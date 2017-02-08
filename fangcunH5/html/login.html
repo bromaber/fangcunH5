@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>登录</title>
+	<meta http-equiv="content-type" content="text/html;charset=utf-8"/>
+	<meta http-equiv="x-ua-compatible" content="IE=edge"/>
+	<meta name="viewport" content="width=device-width,minimum-scale=1.0,maximum-scale=1.0,user-scalable=noy"/>
+	<link rel="shortcut icon" href="">
+	<link rel="stylesheet" href="../css/base.css">
+	<script src="../js/jquery-1.9.1.min.js"></script>
+	<script src="../js/bootstrap.js"></script>
+	<script src="../js/base.js"></script>
+	<script type="text/javascript">
+		document.title="登录";
+	</script>
+	<style type="text/css">
+		html{background-color: #ffffff}
+	</style>
+</head>
+<body>
+    <div class="wraper">
+        <div class="wrap">
+		    <div class="phone-number">
+		    	<input type="text" name="" placeholder="手机号">
+		    	<img src="../images/wrong.png">
+		    </div>
+		    <div class="password">
+		    	<input type="password" name="" placeholder="登录密码">
+		    </div>
+		    <div class="login">
+		    	<a href="default.html" class="login-btn">登录</a>
+		    	<ul class="clearfix">
+		    		<li><a href="firfindpass.html">忘记密码</a></li>
+		    		<li class="ico">|</li>
+		    		<li><a href="register.html">快速注册</a></li>
+		    	</ul>
+		    </div>
+		</div>
+    </div>
+    <script>
+    	$(".phone-number").find("img").click(function(){
+    		var $input = $(".phone-number").find("input");
+    		$input.val("");
+    	})
+    </script>    
+</body>
+</html>

@@ -1,0 +1,855 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript">
+(function(){
+    // if(!window.ISWEIXIN){
+    //     if(!window.ISMQQ) {
+    //         var ua = navigator.wxuserAgent || navigator.userAgent;
+    //         window.ISMQQ = ua.match(/QQ\/(\d+\.(\d+)\.(\d+)\.(\d+))/i);
+    //         window.ISWEIXIN = ua.match(/MicroMessenger\/((\d+)\.(\d+))\.(\d+)/i) || ua.match(/MicroMessenger\/((\d+)\.(\d+))/i);   
+
+    //         //如果不是微信和手Q，则判断url来决定
+    //         //wp手机下无法修改ua
+    //         if(!window.ISWEIXIN && !window.ISMQQ) {
+    //             window.ISWEIXIN = /\/weixin\//i.test(location.href);
+    //             if(!window.ISWEIXIN) {
+    //                 window.ISMQQ = /\/mqq\//i.test(location.href);
+    //             }
+    //         }
+
+    //         //如果最后还不能确定是手Q或微信，则采用微信
+    //         if(!window.ISMQQ && !window.ISWEIXIN) window.ISWEIXIN = true; 
+    //     }
+    //     if(!window.ISWEIXIN) return;
+    // }
+    // var APP_ID = 'wxc92ca6e258e3f1eb';
+
+    var cookie = (function(){
+        var _getCookie = function(key){
+            var re = new RegExp('(?:^|; )' + key + '=([^;]*)');
+            var result = document.cookie.match(re);
+            return result ? result[1] : null;
+        };
+
+        var _setCookie = function(key, value, minute){
+            if (minute) {
+                var now = new Date(),
+                    expire = new Date();
+                expire.setTime(parseFloat(+now) + 60 * 1000 * minute);
+            }
+            document.cookie = key + '=' + value + '; ' + (minute ? ('expires=' + expire.toUTCString() + '; ') : '') + 'path=/; domain=tenpay.com;';
+        };
+
+        var _removeCookie = function(key){
+            document.cookie = key + '=; expires=Mon, 2 Mar 2009 19:00:00 UTC; path=/; domain=tenpay.com;';
+        };
+
+        return {
+            getCookie : _getCookie,
+            setCookie : _setCookie,
+            removeCookie : _removeCookie
+        }
+    })();
+
+    /*判断是否已登陆*/
+    // var isLogin = function(){
+    //     var qluin = cookie.getCookie('qluin');
+    //     var qlskey =  cookie.getCookie('qlskey');
+    //     var qlappid = cookie.getCookie('qlappid');
+    //     return qluin && qlskey && qlappid == APP_ID;
+    // };
+
+    // /*清除登陆态*/
+    // var logout = function(){
+    //     cookie.removeCookie('qluin');
+    //     cookie.removeCookie('qlskey');
+    //     cookie.removeCookie('wx_session_time');
+    // };
+
+    /*跳转oauth*/
+    // var jumpOauth = function(){
+    //     var oauth = "https://open.weixin.qq.com/connect/oauth2/authorize?";
+    //     var redirecturi = location.href.replace(/#.*$/, '');
+    //     //如果是预发布，需要依赖主域名跳转auth
+    //     if(location.hostname == 'apreqian.tenpay.com') {
+    //         redirecturi = 'https://qian.tenpay.com/mb/inc/wx_auth.shtml?url=' + encodeURIComponent(redirecturi);
+    //     }
+    //     var param = [
+    //             'appid=wxc92ca6e258e3f1eb',
+    //             'redirect_uri=' + encodeURIComponent(redirecturi),
+    //             'response_type=code',
+    //             'scope=snsapi_base',
+    //             'state=STATE'
+    //     ];
+    //     cookie.setCookie('oauth_jump_time', new Date().getTime(), 5);  //当前oauth跳转开始的时间，测速以该时间为准
+    //     cookie.setCookie('oauth_jump', '1', 10); //设置oauth跳转标记，15分钟有效
+    //     logout();
+    //     var url = oauth + param.join('&') + '#wechat_redirect';
+    //     location.replace(url);
+    // };
+
+    // /*session是否过期,默认60分钟过期*/
+    // var isSessionExpired = function(){
+    //     var t = cookie.getCookie('wx_session_time');
+    //     if(t && new Date().getTime() - parseInt(t, 10) > 60 * 60 * 1000){
+    //         return true;
+    //     }
+    //     return false;
+    // }
+
+    /*检验是否需要跳oauth*/
+    /*正常底部业务逻辑中判断未登陆且url有code，再登陆*/
+    // var checkLogin = function(){
+    //     var ios = navigator.userAgent.match(/(iPad|iPod|iPhone).*OS\s([\d_]+)/);
+    //     //var weixin  = navigator.userAgent.match(/MicroMessenger\/([\d.]+)/i);
+    //     if(!ios && isSessionExpired()){
+    //         jumpOauth();
+    //         return;
+    //     }
+        
+    //     var islogined = isLogin();
+    //     var isJumpOauth = cookie.getCookie('oauth_jump') == '1';
+    //     if(!isJumpOauth && !islogined){     //第一次进来，oauth授权
+    //         jumpOauth();
+    //         return;
+    //     }
+
+    //     /*非IOS全部强制刷新登录态*/
+    //     if(!isJumpOauth && !window.ISWEIXIN){
+    //         jumpOauth();
+    //         return;
+    //     }
+    // };
+    // window.jumpOauth = jumpOauth;       /*登陆组件重新调用*/
+    // window.Cookie = cookie;
+    // checkLogin();
+})();
+</script>
+<meta charset="utf-8">
+<meta content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no" name="viewport">
+<meta content="yes" name="apple-mobile-web-app-capable">
+<meta content="black" name="apple-mobile-web-app-status-bar-style">
+<meta content="telephone=no" name="format-detection">
+<meta content="email=no" name="format-detection">
+<meta content="" name="pgv"> <!-- 页面PUV统计 -->
+<title>买入取出规则</title>
+<script type="text/javascript">
+        document.title="买入取出规则";
+    </script>
+<script type="text/javascript">
+    //调试模式代码   
+    var __isdebug = location.href.indexOf('__userdebug=1') > -1;
+    function __USERDEBUGLOG(msg, type) {        
+        var container = document.getElementById('__USERDEBUG_CONTAINER');
+        if(__isdebug || container) {
+            if(container) {
+                var content = document.getElementById('__USERDEBUG_CONTAINER_CONTENT');
+                //记录原url,如果原url改变，则清空日志，重新记
+                var url = location.href.replace(/#.*/,'');
+                if(window.__oldurl && window.__oldurl != url) {
+                    content.innerHTML = '';
+                }
+                window.__oldurl = url;
+                if(typeof msg == 'object') msg = JSON.stringify(msg);
+                if(type) {
+                    switch(type) {
+                        case 'error': {
+                            msg = '<span style="color:red;">' + msg + '</span>';
+                            break;
+                        }
+                        case 'warn': {
+                            msg = '<span style="color:#A2AD12;">' + msg + '</span>';
+                            break;
+                        }
+                    }
+                }
+                content.innerHTML += msg + '<br />';
+                container.style.display = 'block';
+            }
+            else {
+                setTimeout(function(){
+                    var container = document.getElementById('__USERDEBUG_CONTAINER');
+                    //有可能在timeout期间，其它线程已创建此对象
+                    if(container) {
+                        __USERDEBUGLOG(msg, type);
+                        return;
+                    }
+                    container = document.createElement('div');
+                    container.style.cssText += 'position:absolute;top: 0;left:0;right: 0;padding: 10px; background-color:rgba(0,0,0,.85);color:#008080;font-size:12px;z-index:100000;';
+                    container.id = "__USERDEBUG_CONTAINER";
+                    var closebtn = document.createElement('a');
+                    closebtn.innerHTML = 'X';
+                    closebtn.href = "javascript:window.__closelogcontainer();";
+                    closebtn.style.cssText = 'position:absolute;font-size: 20px;color:red;right: 6px; top: 4px;padding:2px;display:block;width: 20px;';
+                   
+                    container.appendChild(closebtn);
+                    var content = document.createElement('div');
+                    content.id = '__USERDEBUG_CONTAINER_CONTENT';
+                    container.appendChild(content);
+                    document.body.appendChild(container);  
+                                
+                    __USERDEBUGLOG(msg, type);
+                }, 100);
+            }
+        }
+        else {
+            if(type) {
+                switch(type) {
+                    case 'error': {
+                       console.__error && console.__error(msg);
+                        break;
+                    }
+                    case 'warn': {
+                        console.__warn && console.__warn(msg);
+                        break;
+                    }
+                }
+            }
+            else {
+                console.__log && console.__log(msg);
+            }
+        }
+    }
+    function __closelogcontainer() {
+        document.getElementById('__USERDEBUG_CONTAINER').style.display='none';
+    }
+    if(__isdebug) {
+        console.__log = console.log;
+        console.log = __USERDEBUGLOG;
+        console.__error = console.error;
+        console.error = function(msg) {
+            __USERDEBUGLOG(msg, 'error');
+        }
+        console.__warn = console.warn;
+        console.warn = function(msg) {
+            __USERDEBUGLOG(msg, 'warn');
+        }
+        console.warn(location.href);
+    }
+    console.log('start define debug log function');
+    //提交测试日志
+    //flush 则一次性提交，之前只是缓存，不一定需要提交
+    var __DEBUGMSGS = [];
+    function __SENDDEBUGLOG(msg, flush, code) {
+        msg && __DEBUGMSGS.push(msg);
+        if(!flush) return;
+        msg = __DEBUGMSGS.join('; ');
+        __DEBUGMSGS = [];//重置
+        code = code || '90019999';
+        var ua = navigator.wxuserAgent || navigator.userAgent;
+        var url='//www.tenpay.com/app/v1.0/logger4js.cgi?action=lct/debug&op=&time=&cost=0&attach=&retcode='+code+'&retmsg=&line=&errmsg='+encodeURIComponent(msg)+'&url=' + encodeURIComponent(location.href)+ '&ua='+encodeURIComponent(ua);
+        var img = new Image();
+        img.src = url;
+    }
+    //样式加载失败重试，换成从主站加载
+    function onLinkError(e) {
+        try {
+            e= e || window.event;
+            var target = e.target || e.srcElement || e.currentTarget;
+            window.__SENDDEBUGLOG && window.__SENDDEBUGLOG('link error:' + target.href, true, '900199902');
+            if(target.href && target.href.indexOf('qian-img.tenpay.com')>-1) target.href = target.href.replace('qian-img.tenpay.com', location.hostname);
+        }
+        catch(e) {
+        }        
+    }
+
+    //样式加载成功
+    function onLinkLoad(e) {
+        e= e || window.event;
+        var target = e.target || e.srcElement || e.currentTarget;
+        if(target.href.indexOf(location.hostname)>-1) window.__SENDDEBUGLOG && window.__SENDDEBUGLOG('link load:' + target.href, true, '900199903');
+    }
+</script>
+<script type="text/javascript" data-role="verbose">
+    console.log('start script tag data-role verbose');
+    var G_SPEED = [];
+    G_SPEED[0] = (new Date()).getTime();
+    //判断客户端类型
+    if(!window.ISMQQ && !window.ISWEIXIN) {
+        var ua = navigator.wxuserAgent || navigator.userAgent;
+        window.ISMQQ = ua.match(/QQ\/(\d+\.(\d+)\.(\d+)\.(\d+))/i);
+        window.ISWEIXIN = ua.match(/MicroMessenger\/((\d+)\.(\d+))\.(\d+)/i) || ua.match(/MicroMessenger\/((\d+)\.(\d+))/i);
+    }
+    //如果不是微信和手Q，则判断url来决定
+    //wp手机下无法修改ua
+    if(!window.ISWEIXIN && !window.ISMQQ) {
+        window.ISWEIXIN = /\/weixin\//i.test(location.href);
+        if(!window.ISWEIXIN) {
+            window.ISMQQ = /\/mqq\//i.test(location.href);
+        }
+    }
+
+    if(!window.ISWEIXIN && !window.ISMQQ) {
+        window.ISMQQ = document.cookie.indexOf('lct_ismqq=1') > -1;
+    }
+    else if(window.ISMQQ) {
+        document.cookie = 'lct_ismqq=1;path=/;';
+    }
+
+    //如果最后还不能确定是手Q或微信，则采用微信
+    //非qq即微信
+    window.ISWEIXIN = !window.ISMQQ;    
+
+    //如果有oauth授权，则以oauth授权开始时间为准
+    if(window.Cookie){
+        var oauth_jump_time = window.Cookie.getCookie('oauth_jump_time');
+        if(oauth_jump_time){
+            G_SPEED[0] = Number(oauth_jump_time);
+            window.Cookie.removeCookie('oauth_jump_time');
+        }
+    }  
+    console.log('end script tag data-role verbose');  
+</script>
+<script src="../js/bootstrap.js"></script>
+<script src="../js/jquery-1.9.1.min.js"></script>
+<link href="../css/out.min.css" rel="stylesheet" onerror="onLinkError()">
+<link rel="stylesheet" type="text/css" href="../css/base.css">
+<title>腾讯理财通</title>
+</head>
+<body class="p-full"> 
+    <div class="box" data-role="page">
+        <link href="../css/method.css" rel="stylesheet" onerror="onLinkError()">
+        <div class="fixed-nav-t">
+            <a href="javascript:;" class="on js-tab-buy"><span>买入规则</span></a>
+            <a href="javascript:;" class="js-tab-draw"><span>取出规则</span></a>
+        </div>
+        <div class="rule-body article">
+            <!-- 买入规则 -->
+            <div class="rule-buy js-buy">
+                <p>单笔1000元起购，1000元整数倍递增；仅限年满18周岁的身份证注册用户购买。</p>
+                <h3>产品期限</h3>
+                <p><span>募集期：<var class="js_muji_start">...</var>9点至<var class="js_muji_end">2016年4月11日</var>14点</span><br>
+                <span class="tt-tips">募集期间，资金可买入货币基金享收益，期间不可取出。若截至<var class="js_muji_end">2016年4月11日</var>14点，产品未达到募集额度，资金可继续保留在货币基金享受收益，也可取出。</span>
+                </p>
+
+                <p><span>封闭期：<var class="js_lock_start">2016年4月12日</var>至<var class="js_lock_end">2016年4月12日</var></span><br>
+                    <span class="tt-tips"><var class="js_lock_start">2016年4月12日</var>产品成立，<span class="js_profit_start">4月13日</span>开始产生收益。封闭期至<var class="js_lock_end">2016年4月12日</var>，期间不可取出，中途不可取消。</span>
+                </p>
+
+                <p><span>取出到账：<span class="js_arrive_date">2017年4月14日</span>24点前 </span><br>
+                   <span class="tt-tips">本产品于<var class="js_lock_end">2016年4月12日</var>到期，<span class="js_arrive_date">2017年4月14日</span>一次性取出本金及收益，收益截至<var class="js_profit_end">2016年4月12日</var>。资金将取出至余额账户。</span></p>
+                   
+                <h3>募集期收益规则</h3>
+                <p>募集期间，资金享受货币基金收益，自参与募集后下一个交易日开始计算收益，如遇节假日顺延。</p>
+                <table class="full-table">
+                  <tr>
+                    <th class="t-l" width="100">买入时间</th>
+                    <th>开始计算收益</th>
+                    <th>收益到账</th>
+                  </tr>
+                  <tr>
+                    <td class="t-l">周一15:00至<br>周二15:00</td>
+                    <td>周三</td>
+                    <td>周四</td>
+                  </tr>
+                  <tr>
+                    <td class="t-l">周二15:00至<br>周三15:00</td>
+                    <td>周四</td>
+                    <td>周五</td>
+                  </tr>
+                  <tr>
+                    <td class="t-l">周三15:00至<br>周四15:00</td>
+                    <td>周五</td>
+                    <td>周六</td>
+                  </tr>
+                  <tr>
+                    <td class="t-l">周四15:00至<br>周五15:00</td>
+                    <td>下周一</td>
+                    <td>下周二</td>
+                  </tr>
+                  <tr>
+                    <td class="t-l">周五15:00至<br>下周一15:00</td>
+                    <td>下周二</td>
+                    <td>下周三</td>
+                  </tr>
+                </table>
+
+            </div>
+            <!-- 取出规则 -->
+            <div class="rule-draw js-draw" style="display:none;">
+                <p>资金从参与募集到封闭期结束，期间不可取出，中途不可取消。若未达到募集额度，资金可继续保留在货币基金享受收益，也可在<var class="js_muji_end">2016年4月11日</var>15点后随时取出。</p>
+            </div>
+        </div>
+    </div>
+<script type="text/javascript">
+    $(function(){
+        $(".js-tab-buy").click(function(){
+            $(this).addClass("on");
+            $(".js-tab-draw").removeClass("on");
+            $(".js-buy").show();
+            $(".js-draw").hide();
+        })
+        $(".js-tab-draw").click(function(){
+            $(this).addClass("on");
+            $(".js-tab-buy").removeClass("on");
+            $(".js-draw").show();
+            $(".js-buy").hide();
+        })
+    })
+</script>
+
+<script type="text/javascript"> 
+    //console.log('init widget ');
+    //用于兼容构建的函数，当没有构建时也不致于未定义报错！
+    window.__inline = window.__pkg = window.__uri = function(p){return p;}
+    //检查是否加载lib成功
+    var libjsLoadSuccess = typeof seajs != 'undefined' && typeof $ != 'undefined';
+
+    window.__widget = function(w){
+        var widgets = {
+            'widget/decrypt': "widget/decrypt.min.js?d52a19f0",
+            'widget/dream_circle': "widget/dream_circle.min.js?2db28d13",
+            'widget/dream_share': "widget/dream_share.min.js?83e2e8c8",
+            'widget/encrypt': "widget/encrypt.min.js?0ced244b",
+            'widget/jmSlip': "widget/jmSlip.min.js?8767c3ec",
+            'widget/region': "widget/region.min.js?9aa4708f",
+            'widget/rundiv': "widget/rundiv.min.js?81035d46",
+            'widget/slider': "widget/slider.min.js?8cfea249",
+            'widget/sha1': "widget/sha1.min.js?bfe4cd58",
+            'widget/updown': "widget/updown.min.js?fcc53f67",
+            'widget/recom': "widget/recom.min.js?ba89af85",
+            'widget/countup': "widget/countup.min.js?ef36f6d7",
+            'widget/actUtil': "widget/actUtil.min.js?742cd688",
+            'widget/share_group': "widget/share_group.min.js?f82b1742",
+            'widget/overplus_update': "widget/overplus_update.min.js?6e020f60",
+            'widget/weixin_pay': "widget/weixin_pay.min.js?c935cce5",
+            'widget/supplement': "widget/supplement.min.js?97001479",
+            'widget/service_agreement': "widget/service_agreement.min.js?074312a1",
+            'widget/id_verification': "widget/id_verification.min.js?baeded06"
+        };
+        if(!w) {
+            //主要用于seajs 映射
+            var maps = [];
+            for(var m in widgets) {
+                var mp = widgets[m];
+                if(typeof mp != 'string') continue;
+                maps.push([m, '../../../mb/v4/js/' + mp]);
+            }
+            return maps;
+        }
+        return widgets[w]||w;
+    }
+
+    window.UI_PATH_PREFIX = window.ISMQQ?'/mqq/v4/':'/weixin/v4/';
+     console.log('UI_PATH_PREFIX:' + window.UI_PATH_PREFIX);
+
+     //CDN域名
+     var cdndomain = libjsLoadSuccess?'qian-img.tenpay.com':'qian.tenpay.com';   
+     //预发布不走CDN
+     if(location.hostname == 'apreqian.tenpay.com') {
+         cdndomain = 'apreqian.tenpay.com';      
+     }
+
+     //如果CDN不是正式的域名，则需要把现有的全替换一次
+     if(cdndomain != 'qian-img.tenpay.com') {
+         replaceLinkCDNURL(cdndomain);
+     }
+
+     var __jsbaseurl = "//"+cdndomain+"/"+(window.ISMQQ?'mqq':'weixin')+"/v4/js";
+     //如果指定了cdn域名，则采用，主要用来做测试用   
+     if(location.href.indexOf('cdn_domain=qian.tenpay.com') > -1 || document.cookie.indexOf('cdn_domain=qian.tenpay.com') > -1) {
+        __jsbaseurl = __jsbaseurl.replace('qian-img.tenpay.com', 'qian.tenpay.com');
+         if(window.Cookie) {
+             window.Cookie.setCookie('cdn_domain', 'qian.tenpay.com', 10);//缓存10分钟
+         }
+     }
+     //手Q下依赖API
+     if(window.ISMQQ) {         
+        loadJSInScript('//'+cdndomain+'/mb/lib/qqapi.custom.js', null, 0, false);
+    }
+     
+     var PAGELOADER = [];
+
+     //如果seajs加载不成功，则写日志
+     //zepto加载不正常 
+     if(!libjsLoadSuccess) {
+        window.__SENDDEBUGLOG && window.__SENDDEBUGLOG('seajs is ' + (typeof seajs));
+        window.__SENDDEBUGLOG && window.__SENDDEBUGLOG(' zepto is ' + (typeof $));
+
+        //如果没有成功加载seajs,但页面有可能使用了define定义模块，这里需要缓存，等seajs成功所再初始化
+        var DEFINESCACHE = [];
+        window.define = function() {
+            DEFINESCACHE.push(arguments);
+        };
+
+        //手动加载 lib.js
+        var liburl = "//qian-img.tenpay.com/mb/lib/lib.min.js?1922e332";
+        loadJSInScript(liburl, function(url) {
+            if(url && typeof seajs != 'undefined') {
+                libjsLoadSuccess = true;
+                window.__SENDDEBUGLOG && window.__SENDDEBUGLOG('load lib.js success:' + url, true, '90019996');
+                configSeajs(__jsbaseurl);//配置seajs
+
+                //重定定义缓存的模块
+                if(DEFINESCACHE && DEFINESCACHE.length) {
+                    DEFINESCACHE.map(function(d) {
+                        define.apply(window, d);
+                    });
+                }
+
+                //执行之前的缓存业务逻辑加载
+                if(PAGELOADER && PAGELOADER.length) {
+                    PAGELOADER.map(function(p) {
+                        __loadPage(p.url, p.deps, p.callback);
+                    });
+                    PAGELOADER = [];                
+                }
+            }
+            else {
+                window.__SENDDEBUGLOG && window.__SENDDEBUGLOG('load lib.js error', true, '90019995');
+            }
+        });
+     }
+     else {
+        configSeajs(__jsbaseurl);//配置seajs
+     }
+
+     //配置seajs
+     function configSeajs(baseurl) {
+        console.log('configSeajs seajs:' + typeof seajs);
+        /*模块加载控制*/
+        //这几个指定到mb目录__widget().concat()
+        var maps = [
+                ['mod/', '../../../mb/v4/js/mod/'],
+                ['server/', '../../../mb/v4/js/server/'],
+                ['widget/', '../../../mb/v4/js/widget/']
+            ];
+
+        seajs.config({
+            base: baseurl,
+            //crossorigin: 'anonymous',        
+            map: maps
+        });
+        console.log('seajs config completed');
+     }
+
+     //加载页面业务逻辑
+    var loadPageScript = loadPage = function(url, deps, callback) {
+        if(libjsLoadSuccess) __loadPage(url, deps, callback);
+        else {
+            //等待lib.js加载成功再执行
+            PAGELOADER.push({
+                url: url,
+                deps: deps,
+                callback: callback
+            });
+        }
+    }
+
+    //用户页面加载
+    function __loadPage(url, deps, callback) {
+         //如果CDN不是正式的域名，则需要把现有的全替换一次
+        if(cdndomain != 'qian-img.tenpay.com') {
+            replaceLinkCDNURL(cdndomain);
+        }
+
+        console.log('开始加载页面脚本： ' + url);
+        G_SPEED.push((new Date()).getTime());   //1.JS库文件加载完毕
+
+        var modurl = "mod/mod.min.js?4d31493b";
+        var serverurl = "server/server.min.js?ac532bc6";
+        var modules = [
+            modurl,
+            serverurl
+        ];
+
+        console.log('初始化modules： '  + JSON.stringify(modules));
+        //if(window.ISMQQ) {            
+        //    modules.push('//qian-img.tenpay.com/mb/lib/qqapi.custom.js');
+        //}
+
+        if(typeof deps == 'function') {
+            callback = deps;
+            deps = null;
+        }       
+
+        if(typeof url == 'function') {
+            callback = url;
+            url = null;
+        }
+
+        console.log('load modules:');
+        seajs.use(modules, function(){
+            console.log('load modules complete -> start app');
+            
+            //检查mod.js是否加载完成
+            checkBaseModule('mod/mod', modurl, function() {
+                checkBaseModule('server/server', serverurl, function() {
+                    
+                    //如果有依赖，则需要加载依赖
+                    if(deps) {
+                        console.log('初始化依赖');
+                        //单个也转为数组处理
+                        if(typeof deps == 'string') {
+                            deps = [deps];
+                        }
+                        
+                        seajs.use(deps, function(){
+                            var index = 0;
+                            for(var i=0;i<deps.length;i++) {
+                                checkBaseModule('', deps[i], function() {
+                                    //检查完毕，则调用初始化
+                                    index++;
+                                    if(index >= deps.length) {
+                                        //初始化页面逻辑
+                                        initAppAndPage(url, callback);
+                                    }
+                                });
+                            }
+                        }); 
+                        
+                        console.log('初始化依赖 完成');
+                    }
+                    else {
+                        //初始化页面逻辑
+                        initAppAndPage(url, callback);
+                    }
+                });
+            });         
+        });
+    }
+
+    //从seajs中检查模块是否存在
+    function getSeajsModule(id, callback) {
+        if(seajs.cache) {
+            for(var k in seajs.cache) {
+                var m = seajs.cache[k];
+                if(m && m.id == id) {
+                    callback && callback(m);
+                    return;
+                }
+            }
+        }
+        callback && callback(null);
+    }
+
+    //通过url截取id
+    function getIDFromUrl(url) {
+        //如果是构建工具构建的url是无法获得module的，
+        //需要截取id再use一次，这次不会重复拉取，构建工具会生成其id,seajs直接取上次的结果。
+        var idindex = url.indexOf('.min.js');//优先使用不够建的方式
+        if(idindex == -1) idindex = url.indexOf('.js');
+        if(idindex == -1) idindex = url.indexOf('.');
+        var id = url;
+        if(idindex > -1) {
+            id = url.substr(0, idindex);
+        }
+        var hindex = id.indexOf('qian.tenpay.com');
+        if(hindex > -1) {
+            id = id.substr(hindex + 15);
+        }
+        else {
+            hindex = id.indexOf('qian-img.tenpay.com');
+            if(hindex > -1) {
+                id = id.substr(hindex + 19);
+            }
+            else {
+                hindex = id.indexOf('apreqian.tenpay.com');
+                if(hindex > -1) {
+                    id = id.substr(hindex + 19);
+                }
+            }
+        }
+        return id;          
+    }
+
+    //检查基础模块
+    function checkBaseModule(id, url, callback) {
+        if(!id) {
+            id = getIDFromUrl(url);
+        }
+        console.log('checkBaseModule ' + id + " " + url);
+        seajs.use(id, function(mod){
+            //如果mod.js加载失败,重新加载
+            if(!mod) {
+                console.log('checkBaseModule ' + id + " not exists");
+                loadJSInScript(url, function(ret){
+                    if(ret) {
+                        window.__SENDDEBUGLOG && window.__SENDDEBUGLOG('load mod script success:' + url, true, '90019998');
+                        seajs.use(id, function(mod) {
+                            callback && callback(mod);
+                        });
+                    }
+                    else {
+                        window.__SENDDEBUGLOG && window.__SENDDEBUGLOG('load mod script error:' + url, true, '90019997');
+                        callback && callback();
+                    }                   
+                });
+            }
+            else {
+                callback && callback(mod);
+            }
+        });
+    }
+
+    //初始化页面逻辑
+    function initAppAndPage(url, callback) {
+        seajs.use(['mod/app', url], function(app, page){
+            console.log('app complete');
+            G_SPEED.push((new Date()).getTime());  //2.JS业务脚本加载完毕
+            app.init(function(){
+                console.log('app init callback 2');
+                //让页面操作dom都相对于最后一个box，因为spa会导致页面中有多个box存在的可能
+                var box = $('[data-role="page"]');
+                box = $(box.length?box[box.length-1]:'body');
+                if(!page) {
+                    if(url){                        
+                        //检查页面逻辑加载情况
+                        //手动通过script标签加载
+                        checkBaseModule('', url, function(page){
+                            if(page) {
+                                console.log('page init start 2');
+                                page.init && page.init(box); //初始化页面                                
+                            }
+                            else {
+                                window.__SENDDEBUGLOG && window.__SENDDEBUGLOG('load page script error:' + url, true);
+                                console.warn && console.warn('页面逻辑加载失败:' + url);
+                            }
+                            callback && callback(page);
+                        });                     
+                    }
+                    else {
+                        callback && callback(page);
+                    }
+                }
+                else{
+                    console.log('page init start');
+                    page.init && page.init(box); //初始化页面
+                    callback && callback(page);
+                }
+            });
+        });
+    }
+
+    //手动加载js
+    function loadJSInScript(url, callback, index, wlog) {
+        index = index || 1;
+        var n = document.createElement("script");
+        //直接从ui机器取
+        var jsrooturl = "//"+cdndomain+"/"+(window.ISMQQ?'mqq':'weixin')+"/v4/js/";
+        //基础模块从mb目录取
+        if(url.indexOf('server/') === 0 || url.indexOf('mod/') === 0 || url.indexOf('widget/') === 0) {
+            jsrooturl = '//'+cdndomain+'/mb/v4/js/';
+        }
+        url = /^\s*http(s)?:\/\/|^\s*\//.test(url)?url:(jsrooturl + url);
+        //取根路径
+        if(url[0] == '/' && url[1] != '/') {
+            url = '//' + cdndomain + url;
+        }
+        //重试采用UI机
+        //if(index > 1) {
+            url = url.replace('qian-img.tenpay.com', location.hostname);
+        //}
+        
+        if(url.indexOf('?') > -1) url += '_'+index;
+        else url += '?_' + index;
+        
+
+        n.async = 'async';
+        n.charset = 'utf-8';
+        //n.crossorigin = 'anonymous';
+        n.src = url;
+        //url中带{md5} 为本地调试造成的，上报没有意义
+        n.onload = function(e) {
+            console.log('loadJSInScript success:' + url, true);
+            //window.__SENDDEBUGLOG && window.__SENDDEBUGLOG('loadJSInScript success:' + url, true);
+            if(wlog !== false && url.indexOf('{md5}') === -1) window.__SENDDEBUGLOG && window.__SENDDEBUGLOG('reload js success:' + url, true, '90019991' + index.toString());
+            callback && callback(url);
+        }
+        n.onerror = function(e) {
+            console.error && console.error('loadJSInScript error:' + url + ' ' + e.message);
+            //window.__SENDDEBUGLOG && window.__SENDDEBUGLOG('loadJSInScript error:' + url, true);
+            //window.__SENDDEBUGLOG && window.__SENDDEBUGLOG(JSON.stringify(e), true);
+            //重载失败
+            if(wlog !== false && url.indexOf('{md5}') === -1) window.__SENDDEBUGLOG && window.__SENDDEBUGLOG('reload js error:' + url, true, '90019992' + index.toString());
+            index ++;
+            //最多重试二次
+            if(index > 2) {
+                callback && callback();
+            }
+            else {
+                //再重试一次
+                loadJSInScript(url, callback, index, wlog);
+            }
+        }
+        var head = document.getElementsByTagName('head')[0];
+        //head.appendChild(n);       
+    }   
+
+    //通过ajax拉取，内联到script中执行
+    function loadJSInLineScript(box, url, callback) {
+        $.ajax({
+            url: url,
+            ignore_error: true,
+            dataType: 'text/html',
+            success: function(data){
+                if(data) {
+                    var n = document.createElement("script");
+                    var modreg = /^\s*define\s*\(function\s*\(/i;
+                    //如果模块没有给定id,则写死一个id;
+                    if(modreg.test(data)) {
+                        var id = getIDFromUrl(url);
+                        data = data.replace(modreg, 'define("'+id+'",function(');
+                    }                   
+                    n.innerHTML = data;
+                    box.appendChild(n);                 
+                    setTimeout(function(){
+                        callback && callback(1);
+                    }, 1);
+                }
+                else {
+                    callback && callback();
+                }
+            },
+            error: function(){
+                callback && callback();
+            }
+        });
+    }
+
+    //替换CDN哉名
+    function replaceLinkCDNURL(cdn) {
+        var links = document.querySelectorAll('link');
+         for(var i=0;i<links.length;i++) {
+             var href = links[i].href;
+             //在预发布，如果link指向CDN域名，则换到预发布域 名
+             if(href.indexOf('qian-img.tenpay.com') > -1) {
+                 console.log('replace link url ' + href + ' to ' + cdn);
+                links[i].href = href.replace('qian-img.tenpay.com', cdn);                
+             }
+         }
+    }
+
+    //加载CSS并内联到页面
+    function loadCSSAndInLine(link, callback) {
+        var href = link.href;
+        var links = document.querySelectorAll('link');
+         for(var i=0;i<links.length;i++) {
+             var href = links[i].href;
+             //在预发布，如果link指向CDN域名，则换到预发布域 名
+             if(href.indexOf('qian-img.tenpay.com') > -1) {
+                href = href.replace('qian-img.tenpay.com', 'apreqian.tenpay.com');
+             }
+         }
+    }
+
+    //生成ajax请求
+    function createHttpRequest() {
+        var xmlHttp;
+        if (window.ActiveXObject) { 
+            xmlHttp = new ActiveXObject("Microsoft.XMLHTTP"); 
+        } 
+        else if (window.XMLHttpRequest) { 
+            xmlHttp = new XMLHttpRequest(); 
+        }
+        return xmlHttp;
+    }
+</script>
+
+    <script type="text/javascript" data-role="script">
+        var url = "page/profitrule/nonstandard.min.js?0d82e3a4";
+        loadPageScript(url, function(page){});
+    </script>
+</body>
+</html>
